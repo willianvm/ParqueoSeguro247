@@ -1,54 +1,37 @@
 import React, { useState } from 'react';
+import Login from './components/Login';
+import Register from './components/Register';
 import Dashboard from './components/Dashboard';
-import RegistroVehiculo from './components/RegistroVehiculo';
-import Reservas from './components/Reservas';
 
 function App() {
-  const [vistaActual, setVistaActual] = useState('dashboard');
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('user'));
+  const [showRegister, setShowRegister] = useState(false);
 
-  const renderVista = () => {
-    switch (vistaActual) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'registro':
-        return <RegistroVehiculo />;
-      case 'reservas':
-        return <Reservas />;
-      default:
-        return <Dashboard />;
+  if (!isAuthenticated) {
+    if (showRegister) {
+      return <Register onRegisterSuccess={() => setShowRegister(false)} onSwitchToLogin={() => setShowRegister(false)} />;
     }
-  };
+    return <Login onLoginSuccess={() => setIsAuthenticated(true)} onSwitchToRegister={() => setShowRegister(true)} />;
+  }
 
+  // Si está autenticado, muestra el dashboard
   return (
     <div>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container">
-          <a className="navbar-brand" href="#" onClick={() => setVistaActual('dashboard')}>
-            🅿️ Parqueo Seguro 24/7
-          </a>
-          <div className="navbar-nav">
-            <button
-              className={`nav-link btn btn-link ${vistaActual === 'dashboard' ? 'active' : ''}`}
-              onClick={() => setVistaActual('dashboard')}
-            >
-              Dashboard
-            </button>
-            <button
-              className={`nav-link btn btn-link ${vistaActual === 'registro' ? 'active' : ''}`}
-              onClick={() => setVistaActual('registro')}
-            >
-              Registrar Vehículo
-            </button>
-            <button
-              className={`nav-link btn btn-link ${vistaActual === 'reservas' ? 'active' : ''}`}
-              onClick={() => setVistaActual('reservas')}
-            >
-              Reservas
-            </button>
-          </div>
+          <span className="navbar-brand">Parqueo Seguro 24/7</span>
+          <button
+            className="btn btn-outline-light"
+            onClick={() => {
+              localStorage.removeItem('user');
+              setIsAuthenticated(false);
+            }}
+          >
+            Cerrar sesión
+          </button>
         </div>
       </nav>
-      {renderVista()}
+      <Dashboard />
     </div>
   );
 }

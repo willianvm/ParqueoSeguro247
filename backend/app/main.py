@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import vehiculos, espacios, reservas, pagos
+from .routers import vehiculos, espacios, reservas, pagos, auth
 
 app = FastAPI(
     title="Parqueo Seguro 24/7 API",
@@ -22,6 +22,7 @@ app.include_router(vehiculos.router)
 app.include_router(espacios.router)
 app.include_router(reservas.router)
 app.include_router(pagos.router)
+app.include_router(auth.router)
 
 @app.get("/")
 def root():

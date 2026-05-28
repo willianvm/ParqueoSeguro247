@@ -29,3 +29,7 @@ export const pagosService = {
   listar: () => api.get('/pagos/'),
   procesar: (data) => api.post('/pagos/', data),
 };
+export const authService = {
+  register: (username, password) => api.post('/auth/register', { username, password }),
+  login: (username, password) => api.post('/auth/login', { username, password }),
+};
