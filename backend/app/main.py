@@ -1,33 +1,24 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import vehiculos, espacios, reservas, pagos, auth
+from .routers import vehiculos, espacios, reservas, auth
 
-app = FastAPI(
-    title="Parqueo Seguro 24/7 API",
-    description="API REST para gestión de parqueadero",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
-)
+app = FastAPI(title="API Parqueo Seguro")
 
+# Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["*"],  # En producción, especifica los orígenes permitidos
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Incluir routers
 app.include_router(vehiculos.router)
 app.include_router(espacios.router)
 app.include_router(reservas.router)
-app.include_router(pagos.router)
 app.include_router(auth.router)
 
 @app.get("/")
 def root():
-    return {"message": "Parqueo Seguro 24/7 API", "version": "1.0.0", "docs": "/docs"}
-
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
+    return {"message": "API Parqueo Seguro funcionando"}

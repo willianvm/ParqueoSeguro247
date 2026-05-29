@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
-import mysql.connector
+from ..database import get_db
 import uuid
 from ..database import get_db
 from ..models.schemas import VehiculoCreate, VehiculoResponse, ResponseModel
@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api/vehiculos", tags=["Vehículos"])
 
 @router.get("/", response_model=List[VehiculoResponse])
 def listar_vehiculos(db=Depends(get_db)):
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor()
     cursor.execute("SELECT * FROM vehiculo")
     resultados = cursor.fetchall()
     cursor.close()
@@ -17,7 +17,7 @@ def listar_vehiculos(db=Depends(get_db)):
 
 @router.get("/{vehiculo_id}", response_model=VehiculoResponse)
 def obtener_vehiculo(vehiculo_id: int, db=Depends(get_db)):
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor()
     cursor.execute("SELECT * FROM vehiculo WHERE idvehiculo = %s", (vehiculo_id,))
     resultado = cursor.fetchone()
     cursor.close()
@@ -38,7 +38,7 @@ def crear_vehiculo(vehiculo: VehiculoCreate, db=Depends(get_db)):
         db.commit()
         return ResponseModel(success=True, message="Vehículo registrado", 
                            data={"idvehiculo": cursor.lastrowid})
-    except mysql.connector.Error as e:
+    except pymysql.Error as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
     finally:

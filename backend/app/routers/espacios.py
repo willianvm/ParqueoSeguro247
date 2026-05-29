@@ -1,26 +1,16 @@
-from fastapi import APIRouter, Depends
-from typing import List
+from fastapi import APIRouter, Depends, HTTPException
 from ..database import get_db
-from ..models.schemas import EspacioResponse
 
 router = APIRouter(prefix="/api/espacios", tags=["Espacios"])
 
-@router.get("/", response_model=List[EspacioResponse])
+@router.get("/")
 def listar_espacios(db=Depends(get_db)):
-    cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM espacio_parqueadero")
-    resultados = cursor.fetchall()
-    cursor.close()
-    return resultados
-
-@router.get("/disponibles", response_model=List[EspacioResponse])
-def espacios_disponibles(db=Depends(get_db)):
-    cursor = db.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT ep.* FROM espacio_parqueadero ep
-        LEFT JOIN reserva r ON ep.idespacio_parqueadero = r.cliente_id
-        WHERE r.estado_reserva != 'ACTIVA' OR r.estado_reserva IS NULL
-    """)
-    resultados = cursor.fetchall()
-    cursor.close()
-    return resultados
+    cursor = db.cursor(dictionary=True)  # ← IMPORTANTE: dictionary=True
+    try:
+        cursor.execute("SELECT * FROM espacio_parqueadero")
+        resultados = cursor.fetchall()  # Esto devuelve lista de diccionarios
+        return resultados
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()

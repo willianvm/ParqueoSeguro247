@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
-import mysql.connector
+from ..database import get_db
 import uuid
 from ..database import get_db
 from ..models.schemas import PagoBase, PagoResponse, ResponseModel
@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api/pagos", tags=["Pagos"])
 
 @router.get("/", response_model=List[PagoResponse])
 def listar_pagos(db=Depends(get_db)):
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor()
     cursor.execute("SELECT * FROM pago")
     resultados = cursor.fetchall()
     cursor.close()
@@ -28,7 +28,7 @@ def procesar_pago(pago: PagoBase, db=Depends(get_db)):
         db.commit()
         return ResponseModel(success=True, message="Pago procesado",
                            data={"idpago": cursor.lastrowid})
-    except mysql.connector.Error as e:
+    except pymysql.Error as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
     finally:

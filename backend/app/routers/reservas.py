@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
-import mysql.connector
+from ..database import get_db
 import uuid
 from ..database import get_db
 from ..models.schemas import ReservaCreate, ReservaResponse, ResponseModel
@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api/reservas", tags=["Reservas"])
 
 @router.get("/", response_model=List[ReservaResponse])
 def listar_reservas(db=Depends(get_db)):
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor()
     cursor.execute("SELECT * FROM reserva")
     resultados = cursor.fetchall()
     cursor.close()
@@ -28,7 +28,7 @@ def crear_reserva(reserva: ReservaCreate, db=Depends(get_db)):
         db.commit()
         return ResponseModel(success=True, message="Reserva creada",
                            data={"idreserva": cursor.lastrowid})
-    except mysql.connector.Error as e:
+    except pymysql.Error as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
     finally:
