@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# MySQL
+mysql_data/
+
+# IDE
+.vscode/
+.idea/
+
+# Frontend
+node_modules/
+build/
+.env.local
+
+# Logs
+*.log
